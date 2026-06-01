@@ -2,7 +2,7 @@
    うんこ＆紫外線チェッカー - Service Worker
    ============================================= */
 
-const CACHE_NAME = 'unko-checker-v1';
+const CACHE_NAME = 'unko-checker-v3';
 
 const PRECACHE = [
   './',
