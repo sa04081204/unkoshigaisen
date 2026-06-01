@@ -271,7 +271,10 @@ function recordToday(status) {
     const inputVal = document.getElementById('poopTimeInput').value;
     const time = inputVal || hhmm;
     const existing = getRecord(key) || {};
-    setRecord(key, { status, time, size: existing.size || null, color: existing.color || null });
+    // チップの現在選択値を読み取る（押す前に選んでいた場合も保存）
+    const selectedSize  = document.querySelector('.chip[data-group="size"].selected')?.dataset.value  || existing.size  || null;
+    const selectedColor = document.querySelector('.chip[data-group="color"].selected')?.dataset.value || existing.color || null;
+    setRecord(key, { status, time, size: selectedSize, color: selectedColor });
     document.getElementById('poopTimeInput').value = time;
   } else {
     setRecord(key, { status, time: hhmm });
@@ -500,7 +503,9 @@ function renderCalendar() {
     const dowCls = dow === 0 ? 'sun' : dow === 6 ? 'sat' : '';
     const todayCls = isToday ? 'today' : '';
 
-    html.push(`<div class="cal-cell ${dowCls} ${todayCls}">
+    const hasRec = !!rec;
+    const clickable = hasRec ? 'has-record' : '';
+    html.push(`<div class="cal-cell ${dowCls} ${todayCls} ${clickable}" ${hasRec ? `data-key="${key}"` : ''}>
       <span class="cal-date">${d}</span>
       ${mark}
     </div>`);
@@ -514,6 +519,99 @@ function renderCalendar() {
   }
 
   grid.innerHTML = html.join('');
+}
+
+// =============================================
+// ポップアップ
+// =============================================
+
+const COLOR_MAP = {
+  '黄色':   '#F5D060',
+  '黄褐色': '#C8952A',
+  '茶色':   '#7B4A1E',
+  '濃い茶色': '#3E1F08',
+  '黒':     '#1A1A1A',
+  '赤混じり': '#B03020',
+};
+
+function openDayPopup(key) {
+  const rec = getRecord(key);
+  const [y, m, d] = key.split('-');
+  const dateStr = `${y}年${parseInt(m)}月${parseInt(d)}日`;
+  const popup = document.getElementById('dayPopup');
+  const content = document.getElementById('popupContent');
+
+  let html = `<div class="popup-date">${dateStr}</div>`;
+
+  if (!rec) {
+    html += `<div class="popup-no-record">📭 この日の記録はありません</div>`;
+  } else if (rec.status === 'pooped') {
+    html += `
+      <div class="popup-status">
+        <span class="popup-emoji">💩</span>
+        <span class="popup-status-text">排便あり</span>
+      </div>
+      <div class="popup-details">`;
+
+    if (rec.time) {
+      html += `
+        <div class="popup-detail-row">
+          <span class="popup-detail-icon">🕐</span>
+          <span class="popup-detail-label">時刻</span>
+          <span class="popup-detail-value">${rec.time}</span>
+        </div>`;
+    }
+
+    if (rec.size) {
+      html += `
+        <div class="popup-detail-row">
+          <span class="popup-detail-icon">📏</span>
+          <span class="popup-detail-label">大きさ</span>
+          <span class="popup-detail-value">${rec.size}</span>
+        </div>`;
+    }
+
+    if (rec.color) {
+      const dot = COLOR_MAP[rec.color]
+        ? `<span class="popup-color-dot" style="background:${COLOR_MAP[rec.color]}"></span>`
+        : '';
+      html += `
+        <div class="popup-detail-row">
+          <span class="popup-detail-icon">🎨</span>
+          <span class="popup-detail-label">色</span>
+          <span class="popup-detail-value">${dot}${rec.color}</span>
+        </div>`;
+    }
+
+    if (!rec.size && !rec.color && !rec.time) {
+      html += `<div class="popup-no-record" style="padding:10px 0;font-size:13px">詳細記録なし</div>`;
+    }
+
+    html += `</div>`;
+  } else {
+    html += `
+      <div class="popup-status">
+        <span class="popup-emoji">❌</span>
+        <span class="popup-status-text">未排便</span>
+      </div>`;
+    if (rec.time) {
+      html += `
+        <div class="popup-details">
+          <div class="popup-detail-row">
+            <span class="popup-detail-icon">🕐</span>
+            <span class="popup-detail-label">記録時刻</span>
+            <span class="popup-detail-value">${rec.time}</span>
+          </div>
+        </div>`;
+    }
+  }
+
+  content.innerHTML = html;
+  popup.classList.remove('hidden');
+}
+
+function closeDayPopup() {
+  document.getElementById('dayPopup').classList.add('hidden');
 }
 
 // =============================================
@@ -553,6 +651,18 @@ function initEvents() {
     const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     document.getElementById('poopTimeInput').value = hhmm;
     updatePoopTime();
+  });
+
+  // ポップアップ閉じる
+  document.getElementById('popupClose').addEventListener('click', closeDayPopup);
+  document.getElementById('dayPopup').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeDayPopup();
+  });
+
+  // カレンダーセルのタップ
+  document.getElementById('calendarGrid').addEventListener('click', (e) => {
+    const cell = e.target.closest('.cal-cell[data-key]');
+    if (cell) openDayPopup(cell.dataset.key);
   });
 
   document.getElementById('prevMonth').addEventListener('click', () => {

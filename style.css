@@ -818,24 +818,25 @@ body {
 .chip-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .chip {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 8px 14px;
-  border: 1.5px solid var(--border-color);
+  gap: 6px;
+  padding: 12px 18px;
+  border: 2px solid var(--border-color);
   border-radius: 999px;
   background: var(--bg-card);
   color: var(--text-primary);
   font-family: var(--font-main);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
   -webkit-tap-highlight-color: transparent;
+  min-height: 48px;
 }
 
 .chip:active { transform: scale(0.93); }
@@ -849,8 +850,8 @@ body {
 }
 
 .color-dot {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   flex-shrink: 0;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
@@ -871,4 +872,152 @@ body {
   padding: 3px 10px;
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+/* =============================================
+   詳細ポップアップ
+   ============================================= */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 0 env(safe-area-inset-bottom, 0);
+  animation: overlayIn 0.25s ease;
+}
+
+.popup-overlay.hidden {
+  display: none;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.popup-box {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 24px 24px 32px;
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  animation: sheetUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes sheetUp {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.popup-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--border-color);
+  color: var(--text-secondary);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.popup-close:active { transform: scale(0.9); }
+
+/* ポップアップ中身 */
+.popup-date {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.popup-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.popup-emoji {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.popup-status-text {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--text-primary);
+}
+
+.popup-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.popup-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  border: 1.5px solid var(--border-color);
+}
+
+.popup-detail-icon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.popup-detail-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  width: 48px;
+  flex-shrink: 0;
+}
+
+.popup-detail-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.popup-color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  flex-shrink: 0;
+}
+
+.popup-no-record {
+  text-align: center;
+  padding: 20px 0;
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+/* カレンダーセルをタップ可能に */
+.cal-cell.has-record {
+  cursor: pointer;
+}
+.cal-cell.has-record:active {
+  transform: scale(0.92);
+  opacity: 0.85;
 }
