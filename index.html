@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>うんこ＆紫外線チェッカー</title>
+  <meta name="description" content="毎日の排便管理と紫外線情報を一画面で確認できる健康管理アプリ" />
+  <meta name="theme-color" content="#FFF8F0" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#1a1410" media="(prefers-color-scheme: dark)" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="うんこ☀️" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- ヘッダー -->
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="header-title">
+          <span class="header-emoji">💩</span>
+          <h1>うんこ＆紫外線チェッカー</h1>
+          <span class="header-emoji">☀️</span>
+        </div>
+        <button id="darkToggleBtn" class="dark-toggle" aria-label="ダークモード切り替え">
+          <span class="toggle-icon">🌙</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+
+      <!-- 警告バナー -->
+      <div id="warningBanner" class="warning-banner hidden">
+        <span class="warning-icon">⚠️</span>
+        <span id="warningText"></span>
+      </div>
+
+      <!-- 紫外線カード -->
+      <section class="card uv-card" id="uvCard">
+        <div class="card-header">
+          <span class="card-icon">☀️</span>
+          <h2>今日の紫外線</h2>
+          <button id="uvRefreshBtn" class="refresh-btn" aria-label="更新">↻</button>
+        </div>
+        <div id="uvContent" class="uv-content">
+          <div class="uv-loading">
+            <div class="spinner"></div>
+            <p>位置情報を取得中...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 今日の記録カード -->
+      <section class="card record-card">
+        <div class="card-header">
+          <span class="card-icon">📅</span>
+          <h2>今日の記録</h2>
+          <span id="todayDate" class="today-date"></span>
+        </div>
+        <div id="noRecordNotice" class="no-record-notice hidden">
+          <span>📝 今日はまだ記録がありません</span>
+        </div>
+        <div class="record-status" id="todayStatus">
+          <div class="status-display" id="statusDisplay">
+            <span class="status-emoji" id="statusEmoji">❓</span>
+            <span class="status-text" id="statusText">未記録</span>
+          </div>
+        </div>
+        <div class="record-buttons">
+          <button id="btnPooped" class="record-btn btn-pooped">
+            <span class="btn-emoji">💩</span>
+            <span class="btn-label">出た！</span>
+          </button>
+          <button id="btnNotPooped" class="record-btn btn-not-pooped">
+            <span class="btn-emoji">❌</span>
+            <span class="btn-label">出てない</span>
+          </button>
+        </div>
+        <div id="recordTime" class="record-time hidden"></div>
+      </section>
+
+      <!-- 統計カード -->
+      <section class="card stats-card">
+        <div class="card-header">
+          <span class="card-icon">📊</span>
+          <h2>今月の統計</h2>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value" id="statTotal">-</div>
+            <div class="stat-label">排便回数</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="statRate">-</div>
+            <div class="stat-label">排便率</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value streak-good" id="statStreak">-</div>
+            <div class="stat-label">連続排便日数</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value streak-bad" id="statMiss">-</div>
+            <div class="stat-label">連続未排便日数</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- カレンダーカード -->
+      <section class="card calendar-card">
+        <div class="card-header">
+          <span class="card-icon">🗓️</span>
+          <h2>月間カレンダー</h2>
+          <div class="calendar-nav">
+            <button id="prevMonth" class="cal-nav-btn">‹</button>
+            <span id="calMonthLabel" class="cal-month-label"></span>
+            <button id="nextMonth" class="cal-nav-btn">›</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="calendar-legend">
+          <span>💩 排便あり</span>
+          <span>❌ 未排便</span>
+          <span class="legend-blank">　 未記録</span>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- フッター -->
+    <footer class="app-footer">
+      <p>データはこの端末のみに保存されます 🔒</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

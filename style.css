@@ -1,0 +1,752 @@
+/* =============================================
+   うんこ＆紫外線チェッカー - スタイルシート
+   ============================================= */
+
+/* CSS変数（ライトモード） */
+:root {
+  --bg-primary: #FFF8F0;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FFFBF7;
+  --text-primary: #2D1F0E;
+  --text-secondary: #6B4C2A;
+  --text-muted: #A07850;
+  --border-color: #F0DEC8;
+  --shadow-sm: 0 2px 8px rgba(139, 90, 40, 0.08);
+  --shadow-md: 0 4px 20px rgba(139, 90, 40, 0.12);
+  --shadow-lg: 0 8px 32px rgba(139, 90, 40, 0.18);
+  --accent-warm: #F4A030;
+  --accent-brown: #8B5E2A;
+  --btn-pooped-bg: linear-gradient(135deg, #F4A030 0%, #E8851A 100%);
+  --btn-pooped-shadow: 0 4px 16px rgba(244, 160, 48, 0.4);
+  --btn-not-pooped-bg: linear-gradient(135deg, #E8E0D8 0%, #D5C9BC 100%);
+  --btn-not-pooped-shadow: 0 4px 16px rgba(139, 90, 40, 0.15);
+  --warning-bg: #FFF0F0;
+  --warning-border: #FF6B6B;
+  --warning-text: #CC2222;
+  --notice-bg: #FFF8E8;
+  --notice-border: #FFD580;
+  --header-bg: #FFFFFF;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --font-main: 'Zen Maru Gothic', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+
+  /* UV colors */
+  --uv-low: #4CAF50;
+  --uv-moderate: #FFC107;
+  --uv-high: #FF9800;
+  --uv-very-high: #F44336;
+  --uv-extreme: #9C27B0;
+
+  /* Cal colors */
+  --cal-today-bg: #F4A030;
+  --cal-today-text: #FFFFFF;
+  --cal-other-month: #D0C0B0;
+  --cal-weekend: #E8501A;
+}
+
+/* ダークモード変数 */
+[data-theme="dark"] {
+  --bg-primary: #1a1410;
+  --bg-card: #262018;
+  --bg-card-hover: #2E2820;
+  --text-primary: #F5ECD8;
+  --text-secondary: #C8A87A;
+  --text-muted: #8A6A4A;
+  --border-color: #3A2E20;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --btn-not-pooped-bg: linear-gradient(135deg, #3A3028 0%, #2E2420 100%);
+  --btn-not-pooped-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --warning-bg: #2A1010;
+  --warning-border: #CC3333;
+  --warning-text: #FF8888;
+  --notice-bg: #2A2210;
+  --notice-border: #8A6A20;
+  --header-bg: #1E1810;
+  --cal-today-bg: #F4A030;
+  --cal-today-text: #1a1410;
+  --cal-other-month: #4A3A28;
+  --cal-weekend: #FF7A50;
+}
+
+/* リセット・ベース */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100dvh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overscroll-behavior: none;
+}
+
+/* =============================================
+   アプリ全体レイアウト
+   ============================================= */
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =============================================
+   ヘッダー
+   ============================================= */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--header-bg);
+  border-bottom: 2px solid var(--border-color);
+  padding: env(safe-area-inset-top, 0) 0 0;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.3s ease;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-title h1 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.header-emoji {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.dark-toggle {
+  background: var(--border-color);
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.dark-toggle:active {
+  transform: scale(0.9);
+}
+
+/* =============================================
+   メインコンテンツ
+   ============================================= */
+.main-content {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0));
+}
+
+/* =============================================
+   共通カードスタイル
+   ============================================= */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+  border: 1.5px solid var(--border-color);
+  transition: background 0.3s ease, box-shadow 0.2s ease, border-color 0.3s ease;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.card-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.card-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* =============================================
+   警告バナー
+   ============================================= */
+.warning-banner {
+  background: var(--warning-bg);
+  border: 2px solid var(--warning-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--warning-text);
+  font-weight: 700;
+  font-size: 14px;
+  animation: slideDown 0.4s ease;
+}
+
+.warning-banner.hidden {
+  display: none;
+}
+
+.warning-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  animation: shake 0.5s ease 0.5s;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+/* =============================================
+   紫外線カード
+   ============================================= */
+.refresh-btn {
+  background: var(--border-color);
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:active {
+  transform: rotate(180deg) scale(0.9);
+}
+
+/* ローディング */
+.uv-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 0;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--accent-warm);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* UV表示 */
+.uv-display {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.uv-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.uv-index-badge {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-md);
+}
+
+.uv-index-badge .uv-num {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1;
+}
+
+.uv-index-badge .uv-unit {
+  font-size: 10px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 500;
+}
+
+.uv-info {
+  flex: 1;
+}
+
+.uv-level {
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.uv-location {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.uv-comment {
+  background: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-color);
+  line-height: 1.5;
+}
+
+.uv-bar-wrap {
+  position: relative;
+}
+
+.uv-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #4CAF50 0%, #FFC107 25%, #FF9800 50%, #F44336 75%, #9C27B0 100%);
+  position: relative;
+}
+
+.uv-bar-marker {
+  position: absolute;
+  top: -4px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border: 3px solid var(--text-primary);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: var(--shadow-sm);
+  transition: left 0.5s ease;
+}
+
+/* UV色クラス */
+.uv-low    { background: var(--uv-low); }
+.uv-mod    { background: var(--uv-moderate); }
+.uv-high   { background: var(--uv-high); }
+.uv-very   { background: var(--uv-very-high); }
+.uv-ext    { background: var(--uv-extreme); }
+
+.uv-text-low    { color: var(--uv-low); }
+.uv-text-mod    { color: var(--uv-moderate); }
+.uv-text-high   { color: var(--uv-high); }
+.uv-text-very   { color: var(--uv-very-high); }
+.uv-text-ext    { color: var(--uv-extreme); }
+
+/* UV エラー */
+.uv-error {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 16px 0;
+}
+.uv-error p { font-size: 14px; line-height: 1.6; }
+.uv-error small { font-size: 12px; }
+
+/* =============================================
+   記録カード
+   ============================================= */
+.today-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.no-record-notice {
+  background: var(--notice-bg);
+  border: 1.5px solid var(--notice-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.no-record-notice.hidden { display: none; }
+
+.record-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.status-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  padding: 12px 24px;
+  border: 1.5px solid var(--border-color);
+}
+
+.status-emoji {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.status-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.record-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.record-btn {
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 18px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-main);
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.record-btn:active {
+  transform: scale(0.95);
+}
+
+.btn-pooped {
+  background: var(--btn-pooped-bg);
+  box-shadow: var(--btn-pooped-shadow);
+}
+
+.btn-not-pooped {
+  background: var(--btn-not-pooped-bg);
+  box-shadow: var(--btn-not-pooped-shadow);
+}
+
+.btn-emoji {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.btn-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.btn-pooped .btn-label {
+  color: #FFFFFF;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* 選択状態 */
+.record-btn.selected-pooped {
+  transform: scale(0.97);
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.15), var(--btn-pooped-shadow);
+  ring: 3px solid rgba(244,160,48,0.4);
+  outline: 3px solid rgba(244,160,48,0.5);
+}
+
+.record-btn.selected-not {
+  transform: scale(0.97);
+  outline: 3px solid var(--text-muted);
+}
+
+.record-time {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.record-time.hidden { display: none; }
+
+/* =============================================
+   統計カード
+   ============================================= */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-item {
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  text-align: center;
+  border: 1.5px solid var(--border-color);
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--accent-warm);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-value.streak-good {
+  color: #4CAF50;
+}
+
+.stat-value.streak-bad {
+  color: #F44336;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* =============================================
+   カレンダーカード
+   ============================================= */
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.cal-nav-btn {
+  background: var(--border-color);
+  border: none;
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  font-family: var(--font-main);
+}
+
+.cal-nav-btn:active {
+  transform: scale(0.9);
+  background: var(--accent-warm);
+  color: #fff;
+}
+
+.cal-month-label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 70px;
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+/* 曜日ヘッダー */
+.cal-dow {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 0;
+  color: var(--text-muted);
+}
+
+.cal-dow.sun { color: var(--cal-weekend); }
+.cal-dow.sat { color: #2196F3; }
+
+/* 日付セル */
+.cal-cell {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  font-size: 11px;
+  color: var(--text-secondary);
+  position: relative;
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.cal-cell.other-month {
+  opacity: 0.3;
+  background: transparent;
+  border-color: transparent;
+}
+
+.cal-cell.today {
+  background: var(--cal-today-bg);
+  border-color: var(--cal-today-bg);
+  color: var(--cal-today-text);
+  font-weight: 900;
+  box-shadow: var(--shadow-sm);
+}
+
+.cal-cell.today .cal-date {
+  color: #fff;
+}
+
+.cal-cell .cal-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.cal-cell.today .cal-date {
+  color: #fff;
+}
+
+.cal-cell .cal-mark {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.cal-cell.sun .cal-date { color: var(--cal-weekend); }
+.cal-cell.sat .cal-date { color: #2196F3; }
+.cal-cell.today .cal-date { color: var(--cal-today-text) !important; }
+
+.calendar-legend {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+}
+
+.legend-blank {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0 4px;
+  background: var(--bg-primary);
+  color: transparent;
+}
+
+/* =============================================
+   フッター
+   ============================================= */
+.app-footer {
+  text-align: center;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+  font-size: 11px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+}
+
+/* =============================================
+   アニメーション
+   ============================================= */
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pop-animate {
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  animation: fadeIn 0.4s ease both;
+}
+
+.record-card { animation-delay: 0.05s; }
+.stats-card  { animation-delay: 0.10s; }
+.calendar-card { animation-delay: 0.15s; }
+
+/* =============================================
+   レスポンシブ
+   ============================================= */
+@media (max-width: 360px) {
+  .header-title h1 { font-size: 13px; }
+  .btn-emoji { font-size: 28px; }
+  .stat-value { font-size: 24px; }
+  .cal-cell .cal-mark { font-size: 12px; }
+}
+
+@media (min-width: 481px) {
+  #app { box-shadow: var(--shadow-lg); }
+  body { background: color-mix(in srgb, var(--bg-primary) 70%, transparent); }
+}

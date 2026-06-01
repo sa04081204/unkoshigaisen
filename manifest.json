@@ -1,0 +1,36 @@
+{
+  "name": "うんこ＆紫外線チェッカー",
+  "short_name": "うんこ☀️",
+  "description": "毎日の排便管理と紫外線情報を一画面で確認できる健康管理アプリ",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#F4A030",
+  "orientation": "portrait",
+  "lang": "ja",
+  "categories": ["health", "lifestyle"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "今日の記録",
+      "short_name": "記録",
+      "description": "今日の排便を記録する",
+      "url": "./#record",
+      "icons": [{"src": "icon-192.png", "sizes": "192x192"}]
+    }
+  ]
+}
