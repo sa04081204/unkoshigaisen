@@ -73,6 +73,50 @@
             <span class="status-text" id="statusText">未記録</span>
           </div>
         </div>
+        <!-- 詳細入力（出た時のみ） -->
+        <div id="timeInputArea" class="time-input-area hidden">
+
+          <!-- 時刻 -->
+          <label class="time-label">🕐 排便時刻（任意）</label>
+          <div class="time-input-row">
+            <input type="time" id="poopTimeInput" class="time-input" />
+            <button id="useNowBtn" class="use-now-btn">今すぐ</button>
+          </div>
+
+          <!-- 大きさ -->
+          <label class="time-label" style="margin-top:14px">📏 大きさ</label>
+          <div class="chip-group" id="sizeGroup">
+            <button class="chip" data-group="size" data-value="小">🤏 小</button>
+            <button class="chip" data-group="size" data-value="普通">👌 普通</button>
+            <button class="chip" data-group="size" data-value="大">✊ 大</button>
+            <button class="chip" data-group="size" data-value="特大">💪 特大</button>
+          </div>
+
+          <!-- 色 -->
+          <label class="time-label" style="margin-top:14px">🎨 色</label>
+          <div class="chip-group" id="colorGroup">
+            <button class="chip chip-color" data-group="color" data-value="黄色">
+              <span class="color-dot" style="background:#F5D060"></span>黄色
+            </button>
+            <button class="chip chip-color" data-group="color" data-value="黄褐色">
+              <span class="color-dot" style="background:#C8952A"></span>黄褐色
+            </button>
+            <button class="chip chip-color" data-group="color" data-value="茶色">
+              <span class="color-dot" style="background:#7B4A1E"></span>茶色
+            </button>
+            <button class="chip chip-color" data-group="color" data-value="濃い茶色">
+              <span class="color-dot" style="background:#3E1F08"></span>濃茶
+            </button>
+            <button class="chip chip-color" data-group="color" data-value="黒">
+              <span class="color-dot" style="background:#1A1A1A;border:1px solid #555"></span>黒
+            </button>
+            <button class="chip chip-color" data-group="color" data-value="赤混じり">
+              <span class="color-dot" style="background:#B03020"></span>赤混じり
+            </button>
+          </div>
+
+        </div>
+
         <div class="record-buttons">
           <button id="btnPooped" class="record-btn btn-pooped">
             <span class="btn-emoji">💩</span>

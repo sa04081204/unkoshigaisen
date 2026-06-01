@@ -522,6 +522,69 @@ body {
 
 .record-time.hidden { display: none; }
 
+/* 時間入力エリア */
+.time-input-area {
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  animation: fadeIn 0.3s ease;
+}
+
+.time-input-area.hidden { display: none; }
+
+.time-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.time-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.time-input {
+  flex: 1;
+  height: 44px;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 18px;
+  padding: 0 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.time-input:focus {
+  border-color: var(--accent-warm);
+}
+
+.use-now-btn {
+  height: 44px;
+  padding: 0 16px;
+  background: var(--btn-pooped-bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: var(--font-main);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.use-now-btn:active {
+  transform: scale(0.95);
+}
+
 /* =============================================
    統計カード
    ============================================= */
@@ -749,4 +812,63 @@ body {
 @media (min-width: 481px) {
   #app { box-shadow: var(--shadow-lg); }
   body { background: color-mix(in srgb, var(--bg-primary) 70%, transparent); }
+}
+
+/* チップ（大きさ・色選択） */
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chip:active { transform: scale(0.93); }
+
+.chip.selected {
+  background: var(--accent-warm);
+  border-color: var(--accent-warm);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(244,160,48,0.35);
+}
+
+.color-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* 記録サマリー表示 */
+.record-detail-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.detail-tag {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
 }

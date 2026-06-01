@@ -220,12 +220,13 @@ function renderTodayRecord() {
   const key = todayKey();
   const rec = getRecord(key);
 
-  const statusEmoji  = document.getElementById('statusEmoji');
-  const statusText   = document.getElementById('statusText');
-  const recordTime   = document.getElementById('recordTime');
-  const noNotice     = document.getElementById('noRecordNotice');
-  const btnPooped    = document.getElementById('btnPooped');
-  const btnNotPooped = document.getElementById('btnNotPooped');
+  const statusEmoji   = document.getElementById('statusEmoji');
+  const statusText    = document.getElementById('statusText');
+  const recordTime    = document.getElementById('recordTime');
+  const noNotice      = document.getElementById('noRecordNotice');
+  const btnPooped     = document.getElementById('btnPooped');
+  const btnNotPooped  = document.getElementById('btnNotPooped');
+  const timeInputArea = document.getElementById('timeInputArea');
 
   btnPooped.classList.remove('selected-pooped');
   btnNotPooped.classList.remove('selected-not');
@@ -235,15 +236,21 @@ function renderTodayRecord() {
     statusText.textContent  = '未記録';
     recordTime.classList.add('hidden');
     noNotice.classList.remove('hidden');
+    timeInputArea.classList.add('hidden');
   } else if (rec.status === 'pooped') {
     statusEmoji.textContent = '💩';
     statusEmoji.classList.add('pop-animate');
     setTimeout(() => statusEmoji.classList.remove('pop-animate'), 500);
     statusText.textContent  = '出た！';
-    recordTime.textContent  = `記録時刻：${rec.time}`;
+    recordTime.textContent  = `🕐 排便時刻：${rec.time}`;
     recordTime.classList.remove('hidden');
     noNotice.classList.add('hidden');
     btnPooped.classList.add('selected-pooped');
+    // 時間入力エリアを表示（編集可能）
+    timeInputArea.classList.remove('hidden');
+    document.getElementById('poopTimeInput').value = rec.time;
+    // チップの選択状態を復元
+    restoreChips(rec);
   } else {
     statusEmoji.textContent = '❌';
     statusText.textContent  = '出てない';
@@ -251,6 +258,7 @@ function renderTodayRecord() {
     recordTime.classList.remove('hidden');
     noNotice.classList.add('hidden');
     btnNotPooped.classList.add('selected-not');
+    timeInputArea.classList.add('hidden');
   }
 }
 
@@ -258,11 +266,64 @@ function recordToday(status) {
   const key = todayKey();
   const now = new Date();
   const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  setRecord(key, { status, time: hhmm });
+
+  if (status === 'pooped') {
+    const inputVal = document.getElementById('poopTimeInput').value;
+    const time = inputVal || hhmm;
+    const existing = getRecord(key) || {};
+    setRecord(key, { status, time, size: existing.size || null, color: existing.color || null });
+    document.getElementById('poopTimeInput').value = time;
+  } else {
+    setRecord(key, { status, time: hhmm });
+  }
+
   renderTodayRecord();
   updateStats();
   renderCalendar();
   checkWarnings();
+}
+
+function updatePoopTime() {
+  const key = todayKey();
+  const rec = getRecord(key);
+  if (!rec || rec.status !== 'pooped') return;
+  const inputVal = document.getElementById('poopTimeInput').value;
+  if (!inputVal) return;
+  setRecord(key, { ...rec, time: inputVal });
+  document.getElementById('recordTime').textContent = `🕐 排便時刻：${inputVal}`;
+}
+
+function updateChip(group, value) {
+  const key = todayKey();
+  const rec = getRecord(key);
+  if (!rec || rec.status !== 'pooped') return;
+  setRecord(key, { ...rec, [group]: value });
+}
+
+function restoreChips(rec) {
+  ['size', 'color'].forEach(group => {
+    document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.value === rec?.[group]);
+    });
+  });
+}
+
+function initChips() {
+  document.querySelectorAll('.chip[data-group]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { group, value } = btn.dataset;
+      const already = btn.classList.contains('selected');
+      // 同グループ全解除
+      document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(b => b.classList.remove('selected'));
+      if (!already) {
+        btn.classList.add('selected');
+        updateChip(group, value);
+      } else {
+        // 再タップで解除
+        updateChip(group, null);
+      }
+    });
+  });
 }
 
 // =============================================
@@ -479,8 +540,20 @@ function initEvents() {
     loadUV();
   });
 
+  initChips();
   document.getElementById('btnPooped').addEventListener('click', () => recordToday('pooped'));
   document.getElementById('btnNotPooped').addEventListener('click', () => recordToday('not'));
+
+  // 時間入力：変更時に即保存
+  document.getElementById('poopTimeInput').addEventListener('change', updatePoopTime);
+
+  // 「今すぐ」ボタン
+  document.getElementById('useNowBtn').addEventListener('click', () => {
+    const now = new Date();
+    const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    document.getElementById('poopTimeInput').value = hhmm;
+    updatePoopTime();
+  });
 
   document.getElementById('prevMonth').addEventListener('click', () => {
     calMonth--;
