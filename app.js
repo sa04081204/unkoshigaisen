@@ -503,9 +503,9 @@ function renderCalendar() {
     const dowCls = dow === 0 ? 'sun' : dow === 6 ? 'sat' : '';
     const todayCls = isToday ? 'today' : '';
 
-    const hasRec = !!rec;
-    const clickable = hasRec ? 'has-record' : '';
-    html.push(`<div class="cal-cell ${dowCls} ${todayCls} ${clickable}" ${hasRec ? `data-key="${key}"` : ''}>
+    const isFuture = key > todayStr;
+    const clickable = !isFuture ? 'has-record' : '';
+    html.push(`<div class="cal-cell ${dowCls} ${todayCls} ${clickable}" ${!isFuture ? `data-key="${key}"` : ''}>
       <span class="cal-date">${d}</span>
       ${mark}
     </div>`);
@@ -534,84 +534,164 @@ const COLOR_MAP = {
   '赤混じり': '#B03020',
 };
 
+// 現在ポップアップで編集中の日付キー
+let popupEditKey = null;
+
 function openDayPopup(key) {
+  popupEditKey = key;
+  renderDayPopup(key);
+  document.getElementById('dayPopup').classList.remove('hidden');
+}
+
+function renderDayPopup(key) {
   const rec = getRecord(key);
   const [y, m, d] = key.split('-');
   const dateStr = `${y}年${parseInt(m)}月${parseInt(d)}日`;
-  const popup = document.getElementById('dayPopup');
   const content = document.getElementById('popupContent');
 
-  let html = `<div class="popup-date">${dateStr}</div>`;
+  const sizeOptions = ['小','普通','大','特大'];
+  const colorOptions = [
+    { label:'黄色',   bg:'#F5D060' },
+    { label:'黄褐色', bg:'#C8952A' },
+    { label:'茶色',   bg:'#7B4A1E' },
+    { label:'濃い茶色',bg:'#3E1F08' },
+    { label:'黒',     bg:'#1A1A1A' },
+    { label:'赤混じり',bg:'#B03020' },
+  ];
 
-  if (!rec) {
-    html += `<div class="popup-no-record">📭 この日の記録はありません</div>`;
-  } else if (rec.status === 'pooped') {
-    html += `
-      <div class="popup-status">
-        <span class="popup-emoji">💩</span>
-        <span class="popup-status-text">排便あり</span>
+  const curStatus = rec?.status || null;
+  const curTime   = rec?.time   || '';
+  const curSize   = rec?.size   || null;
+  const curColor  = rec?.color  || null;
+
+  const sizeBtns = sizeOptions.map(s =>
+    `<button class="chip popup-chip ${curSize === s ? 'selected' : ''}" data-pgroup="size" data-pval="${s}">
+      ${s === '小' ? '🤏' : s === '普通' ? '👌' : s === '大' ? '✊' : '💪'} ${s}
+    </button>`
+  ).join('');
+
+  const colorBtns = colorOptions.map(c =>
+    `<button class="chip chip-color popup-chip ${curColor === c.label ? 'selected' : ''}" data-pgroup="color" data-pval="${c.label}">
+      <span class="color-dot" style="background:${c.bg}${c.label === '黒' ? ';border:1px solid #555' : ''}"></span>${c.label === '濃い茶色' ? '濃茶' : c.label}
+    </button>`
+  ).join('');
+
+  const poopedClass = curStatus === 'pooped' ? 'selected-pooped' : '';
+  const notClass    = curStatus === 'not'    ? 'selected-not'    : '';
+  const detailHidden = curStatus !== 'pooped' ? 'hidden' : '';
+
+  content.innerHTML = `
+    <div class="popup-date">${dateStr}</div>
+    <div class="popup-edit-section">
+      <div class="record-buttons popup-record-buttons">
+        <button class="record-btn btn-pooped ${poopedClass}" data-paction="pooped">
+          <span class="btn-emoji">💩</span><span class="btn-label">出た！</span>
+        </button>
+        <button class="record-btn btn-not-pooped ${notClass}" data-paction="not">
+          <span class="btn-emoji">❌</span><span class="btn-label">出てない</span>
+        </button>
       </div>
-      <div class="popup-details">`;
+      ${curStatus === null ? '<p class="popup-hint">👆 タップして記録</p>' : ''}
 
-    if (rec.time) {
-      html += `
-        <div class="popup-detail-row">
-          <span class="popup-detail-icon">🕐</span>
-          <span class="popup-detail-label">時刻</span>
-          <span class="popup-detail-value">${rec.time}</span>
-        </div>`;
-    }
+      <div id="popupDetailArea" class="${detailHidden}">
+        <label class="time-label">🕐 排便時刻（任意）</label>
+        <div class="time-input-row">
+          <input type="time" id="popupTimeInput" class="time-input" value="${curTime}" />
+          <button id="popupUseNowBtn" class="use-now-btn">今すぐ</button>
+        </div>
 
-    if (rec.size) {
-      html += `
-        <div class="popup-detail-row">
-          <span class="popup-detail-icon">📏</span>
-          <span class="popup-detail-label">大きさ</span>
-          <span class="popup-detail-value">${rec.size}</span>
-        </div>`;
-    }
+        <label class="time-label" style="margin-top:14px">📏 大きさ</label>
+        <div class="chip-group">${sizeBtns}</div>
 
-    if (rec.color) {
-      const dot = COLOR_MAP[rec.color]
-        ? `<span class="popup-color-dot" style="background:${COLOR_MAP[rec.color]}"></span>`
-        : '';
-      html += `
-        <div class="popup-detail-row">
-          <span class="popup-detail-icon">🎨</span>
-          <span class="popup-detail-label">色</span>
-          <span class="popup-detail-value">${dot}${rec.color}</span>
-        </div>`;
-    }
+        <label class="time-label" style="margin-top:14px">🎨 色</label>
+        <div class="chip-group">${colorBtns}</div>
+      </div>
 
-    if (!rec.size && !rec.color && !rec.time) {
-      html += `<div class="popup-no-record" style="padding:10px 0;font-size:13px">詳細記録なし</div>`;
-    }
+      ${curStatus !== null ? `
+      <button id="popupDeleteBtn" class="popup-delete-btn">🗑️ この日の記録を削除</button>
+      ` : ''}
+    </div>`;
 
-    html += `</div>`;
-  } else {
-    html += `
-      <div class="popup-status">
-        <span class="popup-emoji">❌</span>
-        <span class="popup-status-text">未排便</span>
-      </div>`;
-    if (rec.time) {
-      html += `
-        <div class="popup-details">
-          <div class="popup-detail-row">
-            <span class="popup-detail-icon">🕐</span>
-            <span class="popup-detail-label">記録時刻</span>
-            <span class="popup-detail-value">${rec.time}</span>
-          </div>
-        </div>`;
-    }
+  // イベント：出た／出てないボタン
+  content.querySelectorAll('[data-paction]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const status = btn.dataset.paction;
+      const existing = getRecord(popupEditKey) || {};
+      const now = new Date();
+      const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      if (status === 'pooped') {
+        setRecord(popupEditKey, { status, time: existing.time || hhmm, size: existing.size || null, color: existing.color || null });
+      } else {
+        setRecord(popupEditKey, { status, time: existing.time || hhmm });
+      }
+      renderDayPopup(popupEditKey);
+      refreshAfterEdit();
+    });
+  });
+
+  // イベント：時刻
+  const timeInput = content.querySelector('#popupTimeInput');
+  if (timeInput) {
+    timeInput.addEventListener('change', () => {
+      const rec2 = getRecord(popupEditKey);
+      if (rec2) setRecord(popupEditKey, { ...rec2, time: timeInput.value });
+    });
   }
 
-  content.innerHTML = html;
-  popup.classList.remove('hidden');
+  // 今すぐボタン
+  const nowBtn = content.querySelector('#popupUseNowBtn');
+  if (nowBtn) {
+    nowBtn.addEventListener('click', () => {
+      const now = new Date();
+      const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      if (timeInput) timeInput.value = hhmm;
+      const rec2 = getRecord(popupEditKey);
+      if (rec2) setRecord(popupEditKey, { ...rec2, time: hhmm });
+    });
+  }
+
+  // チップ
+  content.querySelectorAll('.popup-chip[data-pgroup]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.dataset.pgroup;
+      const val   = btn.dataset.pval;
+      const already = btn.classList.contains('selected');
+      content.querySelectorAll(`.popup-chip[data-pgroup="${group}"]`).forEach(b => b.classList.remove('selected'));
+      const rec2 = getRecord(popupEditKey) || {};
+      if (!already) {
+        btn.classList.add('selected');
+        setRecord(popupEditKey, { ...rec2, [group]: val });
+      } else {
+        setRecord(popupEditKey, { ...rec2, [group]: null });
+      }
+    });
+  });
+
+  // 削除ボタン
+  const delBtn = content.querySelector('#popupDeleteBtn');
+  if (delBtn) {
+    delBtn.addEventListener('click', () => {
+      if (!confirm('この日の記録を削除しますか？')) return;
+      const records = loadRecords();
+      delete records[popupEditKey];
+      saveRecords(records);
+      closeDayPopup();
+      refreshAfterEdit();
+    });
+  }
+}
+
+function refreshAfterEdit() {
+  const key = todayKey();
+  if (popupEditKey === key) renderTodayRecord();
+  updateStats();
+  renderCalendar();
+  checkWarnings();
 }
 
 function closeDayPopup() {
   document.getElementById('dayPopup').classList.add('hidden');
+  popupEditKey = null;
 }
 
 // =============================================

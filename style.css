@@ -1021,3 +1021,57 @@ body {
   transform: scale(0.92);
   opacity: 0.85;
 }
+
+/* ポップアップ編集モード */
+.popup-edit-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popup-record-buttons {
+  margin-bottom: 8px;
+}
+
+.popup-record-buttons .record-btn {
+  flex: 1;
+  padding: 14px 8px;
+  font-size: 15px;
+}
+
+.popup-hint {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 4px 0 8px;
+}
+
+#popupDetailArea {
+  margin-top: 8px;
+}
+
+.popup-delete-btn {
+  margin-top: 20px;
+  width: 100%;
+  background: none;
+  border: 1.5px solid #FF6B6B;
+  color: #CC2222;
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  font-family: var(--font-main);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.popup-delete-btn:active {
+  background: #FFF0F0;
+}
+
+[data-theme="dark"] .popup-delete-btn {
+  border-color: #FF4444;
+  color: #FF7777;
+}
+[data-theme="dark"] .popup-delete-btn:active {
+  background: #2A1010;
+}
